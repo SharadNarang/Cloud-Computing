@@ -1,0 +1,166 @@
+Password for Hortoneowrks 
+
+'DAY_OF_WEEK','FL_DATE','AIRLINE_ID','CARRIER','ORIGIN_AIRPORT_ID','DEST_AIRPORT_ID','DEP_DELAY','DEP_DELAY_NEW','ARR_DELAY','ARR_DELAY_NEW'
+
+from pyspark.sql.types import StringType
+from pyspark import SQLContext
+sqlContext = SQLContext(sc)
+
+ontime_rdd = sc.textFile("file:///root/capstone/ontime.csv").map(lambda line: line.split(","))
+
+
+df = ontime_rdd.toDF(['DAY_OF_WEEK','FL_DATE','AIRLINE_ID','CARRIER','ORIGIN_AIRPORT_ID','DEST_AIRPORT_ID','DEP_DELAY','DEP_DELAY_NEW','ARR_DELAY','ARR_DELAY_NEW','JunkC'])
+
+df.show()
+
+
+df = sqlContext.createDataFrame(ontime_rdd, ['DAY_OF_WEEK','FL_DATE','AIRLINE_ID','CARRIER','ORIGIN_AIRPORT_ID','DEST_AIRPORT_ID','DEP_DELAY','DEP_DELAY_NEW','ARR_DELAY','ARR_DELAY_NEW'])
+
+df.registerTempTable("ontime")
+
+result = sqlContext.sql("SELECT SUM(DEP_DELAY), AIRLINE_ID FROM ontime GROUP BY AIRLINE_ID ORDER BY SUM(DEP_DELAY) DESC LIMIT 10 ")
+
+result1 = sqlContext.sql("SELECT ORIGIN_AIRPORT_ID,AIRLINE_ID,SUM(DEP_DELAY) Delay FROM ontime GROUP BY ORIGIN_AIRPORT_ID,AIRLINE_ID ORDER BY ORIGIN_AIRPORT_ID ASC,AIRLINE_ID ASC,Delay DESC ")
+
+
+
+result2 = sqlContext.sql("SELECT AIRLINE_ID,SUM(DEP_DELAY) Delay FROM ontime WHERE ORIGIN_AIRPORT_ID= '12992' GROUP BY ORIGIN_AIRPORT_ID,AIRLINE_ID ORDER BY Delay ASC ")
+
+
+result3 = sqlContext.sql("SELECT DISTINCT ORIGIN_AIRPORT_ID,AIRLINE_ID FROM ontime WHERE ORIGIN_AIRPORT_ID= '12992'")
+
+df.where("ORIGIN_AIRPORT_ID = u'20304'").take(1)
+
+
+sqlContext.read\
+    .format("org.apache.spark.sql.cassandra")\
+    .options(table="emp", keyspace="tutorialspoint")\
+    .load().show()
+
+user = sql.read.format("org.apache.spark.sql.cassandra").load(keyspace="tutorialspoint", table="emp")
+
+pyspark --packages com.datastax.spark:spark-cassandra-connector_2.11:2.0.0-M3 --conf spark.cassandra.connection.host=127.0.0.1 
+pyspark --packages TargetHolding:pyspark-cassandra:0.3.5 --conf spark.cassandra.connection.host=127.0.0.1
+
+pyspark \
+    --jars ${PYSPARK_ROOT}/pyspark_cassandra-0.1.3.jar  \
+    --driver-class-path ${PYSPARK_ROOT}/pyspark_cassandra-0.1.3.jar \
+    --py-files ${PYSPARK_ROOT}/pyspark_cassandra-0.1.3-py2.7.egg \
+    --conf spark.cassandra.connection.host=127.0.0.1 \
+    --master spark://127.0.0.1:7077
+
+pyspark \
+    --jars ${PYSPARK_CASSANDRA}/pyspark_cassandra-0.1.5.jar  \
+    --driver-class-path ${PYSPARK_CASSANDRA}/pyspark_cassandra-0.1.5.jar  \
+    --py-files ${PYSPARK_CASSANDRA}/pyspark_cassandra-0.1.5-py2.6.egg \
+    --conf spark.cassandra.connection.host=127.0.0.1:9042
+export  ${PYSPARK_CASSANDRA} = 
+    --master spark://127.0.0.1:707
+import pyspark_cassandra
+
+conf = SparkConf() \
+    .setAppName("PySpark Cassandra Test") \
+    .set("spark.cassandra.connection.host", "127.0.0.1")
+
+sc = CassandraSparkContext(conf=conf)
+
+df2 = ontime_rdd.toDF(['DAY_OF_WEEK','FL_DATE','AIRLINE_ID','CARRIER','ORIGIN_AIRPORT_ID','DEST_AIRPORT_ID','DEP_DELAY','DEP_DELAY_NEW','ARR_DELAY','ARR_DELAY_NEW','JunkC'])
+user = sc.cassandraTable("tutorialspoint", "emp").toDF()
+
+--packages datastax:spark-cassandra-connector:1.4.4-s_2.11 --conf spark.cassandra.connection.host=192.168.134.128:9160
+
+pyspark --jars spark-cassandra-connector-assembly-1.4.0-M1-SNAPSHOT.jar \
+            --driver-class-path spark-cassandra-connector-assembly-1.4.0-M1-SNAPSHOT.jar \
+            --conf spark.cassandra.connection.host=192.168.134.128:9160
+from pyspark.sql import SQLContext
+sql = SQLContext(sc)
+
+user = sql.read.format("org.apache.spark.sql.cassandra").\
+               load(keyspace="tutorialspoint", table="emp")
+
+-----------------------------------------------------------------------
+
+Datastax connector 
+
+ pyspark --packages datastax:spark-cassandra-connector:1.5.1-s_2.10 --conf spark.cassandra.connection.host=127.0.0.1 spark.cassandra.connection.port=9160
+
+sqlContext.read\
+    .format("org.apache.spark.sql.cassandra")\
+    .options(table="emp", keyspace="tutorialspoint")\
+    .load().show()
+
+
+Pyspark Cassandra connector 
+
+
+Cqlsh
+
+sudo rm -rf /var/lib/cassandra/data/system/*
+
+ df.write.format("org.apache.spark.sql.cassandra").mode('append').options(table="ontime", keyspace="tutorialspoint").save()
+
+df = sqlContext \
+    .read \
+    .format("org.apache.spark.sql.cassandra") \
+    .options(table="spark_test", keyspace="tutorialspoint") \
+    .load()
+
+	
+
+df1 = df\
+    .filter(df["day"] == 20160528)\
+    .groupBy("traffic_source")\
+    .agg(func.sum("clicks").alias("clicks"), func.sum("revenue").alias("revenue"))\
+    .show()
+
+
+df1\
+    .write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode("append")\
+    .options(table="spark_test_traffic_sources", keyspace="tutorialspoint")\
+    .save()
+
+ALTER KEYSPACE tutorialspoint
+WITH replication = {'class':'NetworkTopologyStrategy', 'replication_factor' : 1};
+
+
+df2\
+    .write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode("append")\
+    .options(table="ontime", keyspace="tutorialspoint")\
+    .save()
+
+result\
+    .write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode("append")\
+    .options(table="ontime", keyspace="tutorialspoint")\
+    .save()
+
+result = sqlContext.sql("SELECT day_of_week, fl_date, airline_id, carrier, origin_airport_id, dest_airport_id, dep_delay, dep_delay_new, arr_delay, arr_delay_new, junkc FROM ontime ")
+
+
+
+df4 = sqlContext \
+    .read \
+    .format("org.apache.spark.sql.cassandra") \
+    .options(table="ontime", keyspace="tutorialspoint") \
+    .load()
+
+df4.registerTempTable("ontime4")
+
+result4 = sqlContext.sql("SELECT SUM(DEP_DELAY), AIRLINE_ID FROM ontime4 GROUP BY AIRLINE_ID ORDER BY SUM(DEP_DELAY) DESC LIMIT 10 ")
+
+
+select x.dest_airport_id,y.origin_airport_id from test x join test y on x.dest_airport_id = y.origin_airport_id 
+where y.fl_date >= x.fl_date and y.fl_date <= date_add(x.fl_date,2);
+
+from pyspark.sql import HiveContext
+hive_context = HiveContext(sc)
+test = hive_context.table("xademo.test")
+test.registerTempTable("test")
+hive_context.sql("select * from test").show()
+hive_context.sql("select x.*,y.* from test x join test y on x.dest_airport_id = y.origin_airport_id where y.fl_date >= x.fl_date and y.fl_date <= date_add(x.fl_date,2)").show()
+

@@ -1,0 +1,105 @@
+
+from pyspark.sql import SQLContext
+from pyspark.sql import Row
+sql = SQLContext(sc)
+
+df = sqlContext.read.load('hdfs:///user/On_Time_On_Time_Performance_2008_1.csv', format='com.databricks.spark.csv', header='true', inferSchema='true')
+
+df = sqlContext.read.load('hdfs:///user/*csv', format='com.databricks.spark.csv', header='true', inferSchema='true')
+
+df = sqlContext.read.load('hdfs:///user/*', format='com.databricks.spark.csv', header='true', inferSchema='true')
+
+df.registerTempTable("ontime")
+
+result = sqlContext.sql("SELECT Year,Quarter,Month,DayofMonth,DayOfWeek,FlightDate,UniqueCarrier,AirlineID,Carrier,Origin,OriginCityName,OriginState,Dest,DestCityName,DestState,DestStateName,DepDelayMinutes,DepDelay,ArrDelay,ArrDelayMinutes FROM ontime")
+
+result.write.parquet("/user/ontime.parquet")
+result.write.format("com.databricks.spark.csv").save("/user/ontime.csv")
+
+ 
+
+df = sqlContext.read.load('file/home/ubuntu/capstone_data/On_Time_On_Time_Performance_2008_1.csv', format='com.databricks.spark.csv', header='true')
+
+sc.textFile("dir/*/*/*.txt")
+
+df = sqlContext.read.format('com.databricks.spark.csv').options(header='true', inferschema='true',treatEmptyValuesAsNulls= 'true',nullValue="").load('hdfs:///user/input/On_Time_On_Time_Performance_2008_1.csv')
+-----------
+df = sqlContext.read.load('hdfs:///user/*csv', format='com.databricks.spark.csv', header='true', inferSchema='true',treatEmptyValuesAsNulls= 'true',nullValue="")
+df.registerTempTable("ontime")
+result = sqlContext.sql("SELECT Year,Quarter,Month,DayofMonth,DayOfWeek,FlightDate,FlightNum,CRSDepTime,DepTime,UniqueCarrier,AirlineID,Carrier,Origin,OriginCityName,OriginState,Dest,DestCityName,DestState,DestStateName,DepDelayMinutes,DepDelay,ArrDelay,ArrDelayMinutes,Cancelled FROM ontime")
+
+result.write.parquet("/user/final_ontime.parquet")
+
+df2 = sqlContext.read.parquet("/user/final_ontime.parquet") 
+
+df2.registerTempTable("ontime2")
+
+hdfs dfs -get /user/final_ontime.parquet /home/ubuntu/capstone_data/final_ontime.parquet
+
+df3 = sqlContext.read.load('hdfs:///user/L_AIRLINE_ID.csv', format='com.databricks.spark.csv', header='true', inferSchema='true',treatEmptyValuesAsNulls= 'true',nullValue="")
+df3.registerTempTable("airline_lkp")
+-----
+sqlContext.sql("SELECT distinct Year,Month FROM ontime2 ").show()
+sqlContext.sql("select A.Dest,B.Origin,A.x+B.y from (SELECT Dest,count(*) x FROM ontime2 group by Dest) A INNER JOIN (SELECT Origin,count(*) y FROM ontime2 group by Origin) B ON A.Dest = B.Origin where A.Dest = 'ORD'").show()
+
+result = sqlContext.sql("SELECT Origin,Dest FROM ontime where Origin = 'LAX' LIMIT 10 ")
+result1 = sqlContext.sql("SELECT count(*) FROM ontime group by Origin")
+
+result2 = sqlContext.sql("SELECT Dest,count(*) FROM ontime group by Dest")
+-----------
+sqlContext.sql("select A.Dest Airport ,(A.x+B.y) TOTALNUMFLIGHTS from (SELECT Dest,count(*) x FROM ontime2 group by Dest) A INNER JOIN (SELECT Origin,count(*) y FROM ontime2 group by Origin) B ON A.Dest = B.Origin order by TOTALNUMFLIGHTS desc").show()
+-------------
+BGM 62
+-------------------------------------------------------------
+sqlContext.sql("SELECT B.Description , avg(ArrDelay) ArrivalDelay FROM ontime2 A,airline_lkp B where A.AirlineID=B.code group by B.Description order by avg(ArrDelay) asc LIMIT 10 ").show()
+------------------------------------------------------------
+
+--------------
+sqlContext.sql("SELECT DayOfWeek , avg(ArrDelay) FROM ontime2 group by DayOfWeek").show()
+--------------
+
+----
+sqlContext.sql("SELECT Origin,UniqueCarrier,avg(DepDelay) FROM ontime2 where origin = 'BWI' group by Origin,UniqueCarrier order by Origin ,avg(DepDelay) asc ").show()
+----
+sqlContext.sql("SELECT Origin,Dest,avg(DepDelay) FROM ontime2 where origin = 'BWI' group by Origin,Dest order by Origin ,avg(DepDelay) asc ").show()
+----
+sqlContext.sql("SELECT Origin,Dest,UniqueCarrier,avg(ArrDelay) FROM ontime2 where origin = 'IND' and dest='CMH' group by Origin,Dest,UniqueCarrier order by Origin,Dest,avg(ArrDelay) asc ").show()
+
+sqlContext.sql("SELECT Origin,Dest,avg(ArrDelay) FROM ontime2 where origin = 'CMI' and dest='ORD' group by Origin,Dest order by Origin,Dest,avg(ArrDelay) desc ").show()
+
+sqlContext.sql("SELECT Origin,Dest,avg(ArrDelay) FROM ontime2 where origin = 'CMI' and dest='ORD' group by Origin,Dest order by Origin,Dest,avg(ArrDelay) desc ").show()
+
+sqlContext.sql("SELECT A.origin,A.dest,A.AirlineID,A.FlightDate,A.ArrDelay,B.origin,B.dest,B.AirlineID,B.FlightDate,A.ArrDelay FROM ontime2 A,ontime2 B where A.origin = 'JAX' and A.dest= 'DFW' and B.dest = 'CRP' and A.dest=B.origin and A.FlightDate='2008-09-09'").show()
+sqlContext.sql("SELECT A.origin,A.dest,A.AirlineID,A.FlightDate,A.ArrDelay,B.origin,B.dest,B.AirlineID,B.FlightDate,A.ArrDelay FROM ontime2 A,ontime2 B where A.origin = 'JAX' and A.dest= 'DFW' and B.dest = 'CRP' and A.dest=B.origin and A.FlightDate='2008-09-09' and B.FlightDate = date_add(A.FlightDate,2) ").show()
+
+hive_context.sql("select x.*,y.* from test x join test y on x.dest_airport_id = y.origin_airport_id where y.fl_date >= x.fl_date and y.fl_date <= date_add(x.fl_date,2)").show()
+
+
+import org.apache.spark.sql.types._
+var df = StructType(Array(StructField("timestamp", StringType, true),StructField("site", StringType, true),StructField("requests", LongType, true) ))
+df = spark.read.schema(df).option("header", "true").option("delimiter", "\t").csv("/user/hduser/wikipedia/pageviews-by-second-tsv")
+df.write.parquet("/user/input/On_Time_On_Time_Performance_2008.parquet")
+val newDataDF = sqlContext.read.parquet("/user/test.result1.parquet")  
+dataframe.write.mode(SaveMode.Append).parquet("/parquet/test.parquet") 
+
+ufo_hive.write.save('/user/ischool/unit08lab1/ufo_orc', format='orc')
+
+val df = sqlContext.read.format("orc").load("hdfs://localhost:8020/user/aks/input1/*","hdfs://localhost:8020/aks/input2/*/part-r-*.orc")
+sc.textFile("hdfs://nn1home:8020/input/war-and-peace.txt")
+
+result.write.parquet("/user/test.result3.parquet")
+
+df.write.orc("/user/input/On_Time_On_Time_Performance_2008.orc")
+
+/user/input/On_Time_On_Time_Performance_2008_1new.parquet
+
+sqlContext.parquetFile
+
+data = sqlContext.read.parquet("/user/input/On_Time_On_Time_Performance_2008_1new.parquet")
+
+df = sqlContext.read.format("com.databricks.spark.csv").schema(schema).option("delimiter",",").option("nullValue","").option("treatEmptyValuesAsNulls","true").load(hdfs:///user/input/On_Time_On_Time_Performance_2008_1.csv)
+
+
+
+
+

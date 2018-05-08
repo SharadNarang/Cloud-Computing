@@ -1,0 +1,188 @@
+ec2-54-212-241-3.us-west-2.compute.amazonaws.com - 172.31.42.56 54.245.198.16,54.202.189.223
+ec2-54-245-198-16.us-west-2.compute.amazonaws.com - 172.31.45.162 54.202.189.223,54.212.241.3
+ec2-54-202-189-223.us-west-2.compute.amazonaws.com - 172.31.35.101 54.245.198.16,54.212.241.3
+
+CID-73b06798-07cb-4511-b79c-1877ceaba441
+
+pyspark --master yarn --packages datastax:spark-cassandra-connector:2.0.1-s_2.11 --conf spark.cassandra.connection.host=54.190.49.102 --conf spark.cassandra.input.consistency.level=ONE --conf spark.cassandra.output.consistency.level=ONE
+Single Node pyspark --packages datastax:spark-cassandra-connector:2.0.1-s_2.11 --conf spark.cassandra.connection.host=54.200.130.184
+Multiple node  pyspark --packages datastax:spark-cassandra-connector:2.0.1-s_2.11 --conf spark.cassandra.connection.host=54.245.208.203
+
+CREATE KEYSPACE demodb1 WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'datacenter1' : 1 };
+ALTER KEYSPACE "demodb" WITH REPLICATION =
+  { 'class' : 'NetworkTopologyStrategy', 'datacenter1' : 2 };
+
+CREATE TABLE emp1 (
+  empID int,
+  deptID int,
+  first_name varchar,
+  last_name varchar,
+  PRIMARY KEY (empID, deptID));
+
+INSERT INTO emp1 (empID, deptID, first_name, last_name)
+  VALUES (104, 15, 'jane', 'smith');
+
+spark.read\
+    .format("org.apache.spark.sql.cassandra")\
+    .options(table="emp", keyspace="demodb")\
+    .load().show()
+
+df1 = sqlContext.createDataFrame([(106,17,"X","Narang" )], ["empid", "deptid", "first_name","last_name" ])
+
+df1.write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table="emp1", keyspace="demodb")\
+    .save()
+
+----------------------------------
+
+scp /etc/cassandra/cassandra.yaml ec2-54-245-208-203.us-west-2.compute.amazonaws.com:/etc/cassandra/cassandra.yaml
+scp /etc/cassandra/cassandra.yaml ec2-54-202-189-223.us-west-2.compute.amazonaws.com:/etc/cassandra/cassandra.yaml
+
+cluster_name: 'Test Cluster Try'
+
+54.201.12.3,54.245.208.203
+
+
+Linux Devices: /dev/sdf through /dev/sdp
+
+for z in /capstone_data/aviation/airline_ontime/*/*.zip; do unzip $z; done
+
+$HADOOP_HOME/bin/hadoop fs -mkdir /user/input 
+
+$HADOOP_HOME/bin/hadoop fs -put On_Time_On_Time_Performance_2008_1.csv /user/input 
+ hadoop fs -ls /user/input
+
+-----------------------
+
+CREATE TABLE QUES2I (   Airport varchar,   Carrier varchar,   DepartureDelay float,   PRIMARY KEY ((Airport),DepartureDelay,Carrier));
+
+res2I = sqlContext.sql("SELECT Origin airport ,UniqueCarrier carrier ,avg(DepDelay) departuredelay FROM ontime2 group by Origin,UniqueCarrier ")
+res21= res2I.na.fill(0).show()
+res21.write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table="ques2i", keyspace="demodb")\
+    .save()
+
+
+select airport,carrier,departuredelay from demodb.ques2i where airport= 'CMI' limit 10;
+select airport,carrier,departuredelay from demodb.ques2i where airport= 'BWI' limit 10;
+select airport,carrier,departuredelay from demodb.ques2i where airport= 'MIA' limit 10 ;
+select airport,carrier,departuredelay from demodb.ques2i where airport= 'LAH' limit 10;
+select airport,carrier,departuredelay from demodb.ques2i where airport= 'IAH' limit 10;
+select airport,carrier,departuredelay from demodb.ques2i where airport= 'SRQ' limit 10;
+
+CREATE TABLE QUES2II (   org_airport varchar,   dest_airport varchar,   DepartureDelay float,   PRIMARY KEY ((org_airport),DepartureDelay,dest_airport));
+
+res2II = sqlContext.sql("SELECT Origin org_airport ,Dest dest_airport ,avg(DepDelay) departuredelay FROM ontime2 group by Origin,Dest ")
+res22= res2II.na.fill(0)
+res22.write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table="ques2ii", keyspace="demodb")\
+    .save()
+
+
+select org_airport,dest_airport,departuredelay from demodb.ques2ii where org_airport = 'CMI' limit 10;
+select org_airport,dest_airport,departuredelay from demodb.ques2ii where org_airport = 'BWI' limit 10;
+select org_airport,dest_airport,departuredelay from demodb.ques2ii where org_airport = 'MIA' limit 10;
+select org_airport,dest_airport,departuredelay from demodb.ques2ii where org_airport = 'LAX' limit 10;
+select org_airport,dest_airport,departuredelay from demodb.ques2ii where org_airport = 'IAH' limit 10;
+select org_airport,dest_airport,departuredelay from demodb.ques2ii where org_airport = 'SRQ' limit 10;
+
+
+
+
+CREATE TABLE QUES2III (   org_airport varchar,   dest_airport varchar, Carrier varchar,  ArrivalDelay float,   PRIMARY KEY ((org_airport,dest_airport),ArrivalDelay,Carrier));
+
+res2III = sqlContext.sql("SELECT Origin org_airport ,Dest dest_airport,UniqueCarrier carrier ,avg(ArrDelay) arrivaldelay FROM ontime2 group by Origin,Dest,UniqueCarrier ")
+res23= res2III.na.fill(0)
+res23.write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table="ques2iii", keyspace="demodb")\
+    .save()
+
+select org_airport,dest_airport,carrier,arrivaldelay from demodb.ques2iii where org_airport = 'CMI' and dest_airport= 'ORD' limit 10;
+select org_airport,dest_airport,carrier,arrivaldelay from demodb.ques2iii where org_airport = 'IND' and dest_airport= 'CMH' limit 10;
+select org_airport,dest_airport,carrier,arrivaldelay from demodb.ques2iii where org_airport = 'DFW' and dest_airport= 'IAH' limit 10;
+select org_airport,dest_airport,carrier,arrivaldelay from demodb.ques2iii where org_airport = 'LAX' and dest_airport= 'SFO' limit 10;
+select org_airport,dest_airport,carrier,arrivaldelay from demodb.ques2iii where org_airport = 'JFK' and dest_airport= 'LAX' limit 10;
+select org_airport,dest_airport,carrier,arrivaldelay from demodb.ques2iii where org_airport = 'ATL' and dest_airport= 'PHS' limit 10;
+
+CREATE TABLE QUES2IV (   org_airport varchar,   dest_airport varchar, ArrivalDelay float,   PRIMARY KEY ((org_airport,dest_airport),ArrivalDelay));
+
+res2IV = sqlContext.sql("SELECT Origin org_airport ,Dest dest_airport,avg(ArrDelay) arrivaldelay FROM ontime2 group by Origin,Dest ")
+res24= res2IV.na.fill(0)
+res24.write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table="ques2iv", keyspace="demodb")\
+    .save()
+
+select org_airport,dest_airport,arrivaldelay from demodb.ques2iv where org_airport = 'CMI' and dest_airport= 'ORD' limit 10;
+select org_airport,dest_airport,arrivaldelay from demodb.ques2iv where org_airport = 'IND' and dest_airport= 'CMH' limit 10;
+select org_airport,dest_airport,arrivaldelay from demodb.ques2iv where org_airport = 'DFW' and dest_airport= 'IAH' limit 10;
+select org_airport,dest_airport,arrivaldelay from demodb.ques2iv where org_airport = 'LAX' and dest_airport= 'SFO' limit 10;
+select org_airport,dest_airport,arrivaldelay from demodb.ques2iv where org_airport = 'JFK' and dest_airport= 'LAX' limit 10;
+select org_airport,dest_airport,arrivaldelay from demodb.ques2iv where org_airport = 'ATL' and dest_airport= 'PHS' limit 10;
+
+
+CREATE TABLE QUES3II ( st_airport varchar,intrm_airport varchar,st_airline varchar,st_flt varchar,st_flt_dt varchar,st_dly float,st_dep_tm varchar,conn_airport varchar,conn_dst varchar,conn_arln varchar,conn_flt varchar,conn_flt_dt varchar,conn_dely float,conn_schd_dep varchar,tot_delay float,  PRIMARY KEY ((st_airport,intrm_airport,conn_dst,st_flt_dt),tot_delay));
+
+res3II = sqlContext.sql("SELECT A.origin st_airport,A.dest intrm_airport,A.AirlineID st_airline,A.FlightNum st_flt,A.FlightDate st_flt_dt,A.ArrDelay st_dly ,A.CRSDepTime st_dep_tm ,B.origin conn_airport,B.dest conn_dst,B.AirlineID conn_arln,B.FlightNum conn_flt,B.FlightDate conn_flt_dt,B.ArrDelay conn_dely,B.CRSDepTime conn_schd_dep,COALESCE((A.ArrDelay+B.ArrDelay),0) tot_delay FROM ontime2 A,ontime2 B \
+where A.dest=B.origin and  B.FlightDate = date_add(A.FlightDate,2) and \
+A.CRSDepTime < 1200 and B.CRSDepTime > 1200 ")
+res32= res3II.na.fill(0)
+res32.write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table="ques3ii", keyspace="demodb")\
+    .save()
+
+select * from demodb.ques3ii where st_airport= 'SLC' and intrm_airport= 'BFL' and conn_dst = 'LAX' and st_flt_dt ='2008-04-01';
+
+df.withColumn('c1', when(df.c1.isNotNull(), 1).otherwise(0))
+
+select * from demodb.ques3ii where st_airport= 'BOS' and intrm_airport= 'ATL' and conn_dst = 'LAX' and st_flt_dt ='2008-03-04' limit 1;
+select * from demodb.ques3ii where st_airport= 'JAX' and intrm_airport= 'DFW' and conn_dst = 'CRP' and st_flt_dt ='2008-09-09' limit 1;
+select * from demodb.ques3ii where st_airport= 'SLC' and intrm_airport= 'BFL' and conn_dst = 'LAX' and st_flt_dt ='2008-04-01' limit 1;
+select * from demodb.ques3ii where st_airport= 'LAX' and intrm_airport= 'MIA' and conn_dst = 'LAX' and st_flt_dt ='2008-01-24' limit 1;
+select * from demodb.ques3ii where st_airport= 'LAX' and intrm_airport= 'ORD' and conn_dst = 'JFK' and st_flt_dt ='2008-01-01' limit 1;
+select * from demodb.ques3ii where st_airport= 'LAX' and intrm_airport= 'ORD' and conn_dst = 'JFK' and st_flt_dt ='2008-01-01' limit 1;
+
+
+
+
+sqlContext.sql("SELECT A.origin,A.dest,A.AirlineID,A.FlightNum,A.FlightDate,A.ArrDelay,A.CRSDepTime,B.origin,B.dest,B.AirlineID,B.FlightNum,B.FlightDate,B.ArrDelay,B.CRSDepTime,COALESCE((A.ArrDelay+B.ArrDelay),0) FROM ontime2 A,ontime2 B \
+where A.origin = 'SLC' and A.dest= 'BFL' and B.dest = 'LAX' and \
+A.dest=B.origin and A.FlightDate='2008-04-01' and B.FlightDate = date_add(A.FlightDate,2) and \
+A.CRSDepTime < 1200 and B.CRSDepTime > 1200").show()
+
+res3II =sqlContext.sql("SELECT A.origin st_airport,A.dest intrm_airport,A.AirlineID st_airline,A.FlightNum st_flt,A.FlightDate st_flt_dt,A.ArrDelay st_dly ,A.CRSDepTime st_dep_tm ,B.origin conn_airport,B.dest conn_dst,B.AirlineID conn_arln,B.FlightNum conn_flt,B.FlightDate conn_flt_dt,B.ArrDelay conn_dely,B.CRSDepTime conn_schd_dep,COALESCE((A.ArrDelay+B.ArrDelay),0) tot_delay FROM ontime3 A,ontime3 B \
+where A.dest=B.origin and B.FlightDate = date_add(A.FlightDate,2) and A.Year='2008' and \
+A.CRSDepTime < 1200 and B.CRSDepTime > 1200 and A.origin in ('BOS','PHX','DFW')").show()
+
+
+(None, u'Sunday,6.613280292442754')
+(None, u'Wednesday,7.203656394670348')
+(None, u'Friday,9.721032337585571')
+(None, u'Saturday,4.301669926076596')
+(None, u'Monday,6.716102802585582')
+(None, u'Thursday,9.094441008336657')
+(None, u'Tuesday,5.990458841319885|')
+
+-------------------------------------------
+Time: 2017-06-07 04:45:45
+-------------------------------------------
+(None, u'F')
+(None, u'M')
+(None, u'S')
+(None, u'S')
+(None, u'T')
+(None, u'T')
+(None, u'W')
+
+

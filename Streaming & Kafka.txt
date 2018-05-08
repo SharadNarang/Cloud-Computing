@@ -1,0 +1,23 @@
+/usr/hdp/current/kafka-broker/bin/kafka-topics.sh --create --zookeeper sandbox.hortonworks.com:2181   --replication-factor 1 --partitions 1 --topic test1
+
+/usr/hdp/current/kafka-broker/bin/kafka-topics.sh --list --zookeeper sandbox.hortonworks.com:2181
+
+/usr/hdp/current/kafka-broker/bin/kafka-console-producer.sh --broker-list sandbox.hortonworks.com:6667 --topic test1
+
+head -10 *csv |  /usr/hdp/current/kafka-broker/bin/kafka-console-producer.sh --broker-list sandbox.hortonworks.com:6667 --topic test1
+
+/usr/hdp/current/kafka-broker/bin/kafka-console-consumer.sh --zookeeper sandbox.hortonworks.com:2181 --topic test1 --from-beginning
+
+spark-submit --packages org.apache.spark:spark-streaming-kafka_2.10:1.5.0,TargetHolding/pyspark-cassandra:0.1.5 --conf /
+spark.cassandra.connection.host=127.0.0.1 example.py my-topic
+
+bin/spark-submit  --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.1 ~/py/sparkjob.py
+Use according to your spark and kafka versions.
+
+bin/spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.1 kafka_wordcount.py sandbox.hortonworks.com:2181 test1
+
+spark-submit --master yarn --deploy-mode client --conf "spark.dynamicAllocation.enabled=false" \
+--jars /usr/hdp/current/spark-client/lib/spark-examples-1.6.0.2.4.0.0-169-hadoop2.7.1.2.4.0.0-169.jar kafka_wordcount.py \
+sandbox.hortonworks.com:2181 test1
+
+spark-submit --jars /usr/hdp/current/spark-client/lib/spark-examples-1.6.0.2.4.0.0-169-hadoop2.7.1.2.4.0.0-169.jar kafka_wordcount.py sandbox.hortonworks.com:2181 test1

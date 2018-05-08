@@ -1,0 +1,79 @@
+Kafka 
+
+cd kaf*
+weget http://mirror.ox.ac.uk/sites/rsync.apache.org/kafka/0.10.2.0/kafka_2.11-0.10.2.0.tgz
+
+nohup bin/zookeeper-server-start.sh config/zookeeper.properties > /dev/null 2>&1 &
+
+nohup bin/kafka-server-start.sh config/server.properties > /dev/null 2>&1 &
+nohup bin/kafka-server-start.sh config/server-1.properties > /dev/null 2>&1 &
+nohup bin/kafka-server-start.sh config/server-2.properties > /dev/null 2>&1 &
+
+34.223.229.169
+54.201.109.137
+zookeeper.connect=ec2-54-186-48-34.us-west-2.compute.amazonaws.com:2181,ec2-54-200-240-162.us-west-2.compute.amazonaws.com:2181
+zookeeper.connect=34.223.229.169:2181,54.201.109.137:2181
+ echo "1" > /tmp/zookeeper/myid
+bin/kafka-topics.sh --create --zookeeper ec2-34-223-229-169.us-west-2.compute.amazonaws.com:2181,ec2-54-201-109-137.us-west-2.compute.amazonaws.com:2181 --replication-factor 1 --partitions 1 --test
+
+>>> from kafka import KafkaProducer
+>>> from kafka.errors import KafkaError
+>>> producer = KafkaProducer(bootstrap_servers='54.186.162.203:9092')
+>>> topic = "kafkatopic"
+>>> producer.send(topic, b'test message')
+<kafka.producer.future.FutureRecordMetadata object at 0x7f352ad78b50>
+>>> exit()
+
+sudo sh -c "export PATH=/usr/java/jdk1.8.0_92/bin:$PATH; export HADOOP_HOME=/usr/local/hadoop-2.6.3; export JAVA_HOME=/home/why/download/jdk1.8.0_92; pip install pydoop"
+sudo sh -c "export HADOOP_HOME=/usr/local/hadoop export; export JAVA_HOME=/usr; pip install pydoop"
+
+sudo apt-get install python2.7-dev
+
+/usr/local/hadoop/etc/hadoop/core-site.xml
+
+./bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.1.0   --master yarn 1-01-top-10-popular-airports.py 54.186.107.25:2181 ontime
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-10_2.10:2.0.1,org.apache.kafka:kafka_2.10:0.10.2.0 --master yarn 1-01-top-10-popular-airports.py 54.186.107.25:2181 ontime
+spark-submit --jars spark-streaming-kafka-0-10-assembly_2.10-2.0.1.jar   1-01-top-10-popular-airports.py 54.186.107.25:2181 ontime
+
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.10:2.0.1,org.apache.kafka:kafka_2.10:0.8.0 1-01-top-10-popular-airports.py 54.186.107.25:2181 ontime
+
+
+
+
+
+
+
+
+
+
+
+
+
+kafka-topics --create --zookeeper zookeeper_server:2181 --topic wordcounttopic --partitions 1 --replication-factor 1
+
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.0  a.py 34.210.194.87:2181 test
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.10:2.0.1,org.apache.kafka:kafka_2.10:0.8.0 example.py 54.186.107.25:2181 test
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.0 example.py 54.186.107.25:2181 test
+
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.0,packages datastax:spark-cassandra-connector:2.0.1-s_2.11 --conf spark.cassandra.connection.host=54.200.130.184 kafka_wordcount.py 54.190.49.215:2181 test
+
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.0  --conf "spark.streaming.backpressure.enabled=true" --master spark://35.165.64.37:7077 1-01-top-10-popular-airports.py 54.202.2.236 ontime5
+--deploy-mode client --master yarn \
+--num-executors 30 \
+--conf spark.yarn.executor.memoryOverhead=4096 \
+--executor-memory 2.5G \
+--conf spark.yarn.driver.memoryOverhead=3072 \
+--driver-memory 26G \
+--executor-cores 9 \
+1-01-top-10-popular-airports.py 54.149.60.167:2181 ontime7
+
+On_Time_On_Time_Performance_2008_9.csv
+df = sqlContext.read.format("com.databricks.spark.csv").option("header", "true").option("inferschema", "true").option("mode", "DROPMALFORMED").load("On_Time_On_Time_Performance_2008_9.csv")
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.0  --conf "spark.streaming.backpressure.enabled=true" --master spark://35.165.64.37:7077 --conf spark.ui.port=5051 --num-executors 6 --executor-memory 30G --executor-cores 30 1-01-top-10-popular-airports.py 54.187.183.74 ontime9
+
+ubuntu@ip-172-31-26-146:~/cleaned_data$ ls *part-r-0000* | wc -l
+10
+ubuntu@ip-172-31-26-146:~/cleaned_data$ ls *part-r-0001* | wc -l
+6
+ubuntu@ip-172-31-26-146:~/cleaned_data$ ls | wc -l
+16

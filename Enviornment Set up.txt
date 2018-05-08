@@ -1,0 +1,133 @@
+configurations 
+
+Spark -
+---------------------------------------------------------------------------------------------------------------------
+All nodes Change SPARK_PUBLIC_DNS- sudo vim $SPARK_HOME/conf/spark-env.sh
+scp $SPARK_HOME/conf/spark-env.sh ec2-52-24-126-67.us-west-2.compute.amazonaws.com:$SPARK_HOME/conf/spark-env.sh
+scp $SPARK_HOME/conf/spark-env.sh ec2-34-210-50-210.us-west-2.compute.amazonaws.com:$SPARK_HOME/conf/spark-env.sh
+scp $SPARK_HOME/conf/spark-env.sh ec2-34-210-194-87.us-west-2.compute.amazonaws.com:$SPARK_HOME/conf/spark-env.sh
+
+MAster - $SPARK_HOME/conf/slaves add salve dns 
+-------------------------------------------------------------------------------------------------------------------
+YArn
+MAster node sudo vim $HADOOP_CONF_DIR/yarn-site.xml
+scp $HADOOP_CONF_DIR/core-site.xml ec2-54-245-167-84.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/yarn-site.xml
+scp $HADOOP_CONF_DIR/core-site.xml ec2-54-213-237-228.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/yarn-site.xml
+HAdoop 
+--------------------------------------------------------------------------------------------------------------------
+
+Common Hadoop Configurations on all Nodes
+sudo vim  $HADOOP_CONF_DIR/core-site.xml  ec2-54-202-178-195.us-west-2.compute.amazonaws.com
+scp $HADOOP_CONF_DIR/core-site.xml ec2-52-24-126-67.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/core-site.xml
+scp $HADOOP_CONF_DIR/core-site.xml ec2-34-210-50-210.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/core-site.xml
+scp $HADOOP_CONF_DIR/core-site.xml ec2-34-210-194-87.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/core-site.xml
+scp $HADOOP_CONF_DIR/yarn-site.xml ec2-52-24-126-67.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/yarn-site.xml
+scp $HADOOP_CONF_DIR/yarn-site.xml ec2-34-210-50-210.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/yarn-site.xml
+scp $HADOOP_CONF_DIR/yarn-site.xml ec2-34-210-194-87.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/yarn-site.xml
+scp $HADOOP_CONF_DIR/mapred-site.xml ec2-52-24-126-67.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/mapred-site.xml
+scp $HADOOP_CONF_DIR/mapred-site.xml ec2-34-210-50-210.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/mapred-site.xml
+scp $HADOOP_CONF_DIR/mapred-site.xml ec2-34-210-194-87.us-west-2.compute.amazonaws.com:$HADOOP_CONF_DIR/mapred-site.xml
+
+NameNode Specific Configurations
+sudo vim /etc/hosts - Changes
+sudo vim $HADOOP_CONF_DIR/masters
+sudo vim $HADOOP_CONF_DIR/slaves
+
+DataNode Specific Configurations
+sudo vim /usr/local/hadoop/hadoop_data_updated/hdfs/datanode/current/VER*
+CID-3d60d2d3-5a9f-4605-9247-b195da52b67c
+
+--------------------------------------------------------------------------------------------------------------------
+Cassandra 
+---------------------------------------------------------------------------------------------------------------------
+/etc/cassandra/cassandra.yaml
+
+listen_address: <private-ip-address-of-instance> 172.31.42.56
+broadcast_address: <public-ip-address-of-instance> 54.202.135.94
+rpc_address: 0.0.0.0
+broadcast_rpc_address: <public-ip-address-of-instance> 54.202.135.94
+seed_provider:
+ - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+   parameters:
+   - seeds: “<public-ip-address-of-seed-instance>”
+
+
+54.213.237.228,54.245.167.84
+54.213.237.228,54.202.135.94
+54.245.167.84,54.202.135.94
+-----------------------------------------------------------------------------------------------------------------------
+CID-c4e49695-f1b1-4abc-83ab-cd93343c6c3e
+
+sudo vi /usr/local/hadoop/hadoop_data_new/hdfs/datanode/current/VERSION
+sudo apt-get install scala  
+wget http://apache.mirrors.tds.net/spark/spark-2.0.1/spark-2.0.1-bin-hadoop2.7.tgz -P ~/Downloads 
+sudo tar zxvf ~/Downloads/spark-* -C /usr/local  
+sudo mv /usr/local/spark-* /usr/local/spark
+sudo vim ~/.profile
+. ~/.profile  
+sudo chown -R ubuntu $SPARK_HOME  
+cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh  
+
+vim $SPARK_HOME/conf/spark-env.sh
+
+from pyspark.sql.types import StringType
+from pyspark import SQLContext
+sqlContext = SQLContext(sc)
+ontime_rdd = sc.textFile("file:///home/ubuntu/ontime.csv").map(lambda line: line.split(","))
+df = ontime_rdd.toDF(['DAY_OF_WEEK','FL_DATE','AIRLINE_ID','CARRIER','ORIGIN_AIRPORT_ID','DEST_AIRPORT_ID','DEP_DELAY','DEP_DELAY_NEW','ARR_DELAY','ARR_DELAY_NEW','JunkC'])
+
+df.show()
+
+df = sqlContext.createDataFrame(ontime_rdd, ['DAY_OF_WEEK','FL_DATE','AIRLINE_ID','CARRIER','ORIGIN_AIRPORT_ID','DEST_AIRPORT_ID','DEP_DELAY','DEP_DELAY_NEW','ARR_DELAY','ARR_DELAY_NEW'])
+
+df.registerTempTable("ontime")
+
+
+sudo apt-get install oracle-java7-installer
+wget http://www.apache.org/dist/cassandra/3.0.0/apache-cassandra-3.0.0-bin.tar.gz -P ~/Downloads 
+tar xzf apache-cassandra-3.0.0-bin.tar.gz
+cd apache-cassandra-3.0.0/
+bin/cassandra -f
+bin/cqlsh
+---------------------
+
+echo "deb http://debian.datastax.com/community stable main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+sudo vim /etc/apt/sources.list
+deb http://some.debian.mirror/debian/ $distro main contrib non-free
+
+curl -L https://debian.datastax.com/debian/repo_key | sudo apt-key add -
+
+sudo apt-get install dsc30
+sudo apt-get install cassandra-tools
+
+sudo add-apt-repository ppa:webupd8team/java
+sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ sudo apt-get install oracle-java8-installer
+
+echo "deb http://debian.datastax.com/community stable main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+vim /etc/apt/sources.list add - deb http://some.debian.mirror/debian/ $distro main contrib non-free
+curl -L https://debian.datastax.com/debian/repo_key | sudo apt-key add -
+
+$ sudo apt-get update
+$ sudo apt-get install dsc30
+$ sudo apt-get install cassandra-tools
+
+155 - 54.244.109.10,54.244.10.183
+10 - 54.244.10.183,34.210.89.155
+101 - 54.244.109.10,34.210.89.155
+
+listen_address: <private-ip-address-of-instance>
+broadcast_address: <public-ip-address-of-instance>
+rpc_address: 0.0.0.0
+broadcast_rpc_address: <public-ip-address-of-instance>
+seed_provider:
+ - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+   parameters:
+   - seeds: “<public-ip-address-of-seed-instance>”
+
+ec2-54-202-135-94.us-west-2.compute.amazonaws.com
+ec2-54-213-237-228.us-west-2.compute.amazonaws.com
+ec2-54-245-167-84.us-west-2.compute.amazonaws.com
+
+

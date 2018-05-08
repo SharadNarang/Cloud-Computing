@@ -1,0 +1,24 @@
+ec2-35-165-64-37.us-west-2.compute.amazonaws.com
+
+ec2-52-24-126-67.us-west-2.compute.amazonaws.com
+ec2-34-210-50-210.us-west-2.compute.amazonaws.com 
+ec2-34-210-114-162.us-west-2.compute.amazonaws.com
+
+cat ~/.ssh/id_rsa.pub | ssh -i ~/.ssh/SharadN-EC2.pem ec2-52-24-126-67.us-west-2.compute.amazonaws.com 'cat >> ~/.ssh/authorized_keys'
+cat ~/.ssh/id_rsa.pub | ssh -i ~/.ssh/SharadN-EC2.pem ec2-34-210-114-162.us-west-2.compute.amazonaws.com 'cat >> ~/.ssh/authorized_keys'
+
+CID-0f6ab0af-919e-4f93-a053-9b2d08aecb9f
+
+cat ~/.ssh/id_rsa.pub | ssh -i ~/.ssh/SharadN-EC2.pem ec2-34-210-114-162.us-west-2.compute.amazonaws.com 'cat >> ~/.ssh/authorized_keys'
+scp /home/ubuntu/Code/* ec2-34-210-50-210.us-west-2.compute.amazonaws.com:/home/ubuntu/code
+
+On_Time_On_Time_Performance_2008_7.csv
+
+awk 'BEGIN{ FS="," }
+     { for(fn=1;fn<=NF;fn++) {print fn" = "$fn;}; exit; }
+    ' On_Time_On_Time_Performance_2008_7.csv
+
+spark-submit --master local[*] --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.0  --conf "spark.streaming.backpressure.enabled=true" 1-01-top-10-popular-airports.py 54.149.60.167:2181 ontime1
+
+spark-submit --master local[*] --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.0  --conf "spark.streaming.backpressure.enabled=true" 1-01-top-10-popular-airports.py 54.149.60.167:2181 ontime1
+
